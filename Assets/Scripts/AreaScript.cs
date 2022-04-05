@@ -12,18 +12,17 @@ public class AreaScript : MonoBehaviour
 			CargoContr cargoContr;
 			if (other.TryGetComponent(out cargoContr))
 			{
-				StartCoroutine(Load(cargoContr));
+				if (cargoContr.stackObjects.Count <= cargoContr.capacity)
+				{
+					cargoContr.AddItem(factoryScript.productionArea.Pop());
+				}
+				StartCoroutine(Pause());
 			}
 		}
 	}
 
-	public IEnumerator Load(CargoContr cargoContr)
+	public IEnumerator Pause()
 	{
-		if (cargoContr.stackObjects.Count <= 10)
-		{
-			yield return new WaitForSecondsRealtime(.5f);
-			cargoContr.AddItem(factoryScript.productionArea.Pop());
-		}
-		else yield break;
+		yield return new WaitForSeconds(1f);
 	}
 }

@@ -6,30 +6,33 @@ public class CargoContr : MonoBehaviour
 {
 	public Transform CargoPos;
 	public Stack<GameObject> stackObjects = new Stack<GameObject>();
+	public int capacity;
 
 	public void AddItem(GameObject cargo)
 	{
 		stackObjects.Push(cargo);
-		Debug.Log(stackObjects.Count);
 		cargo.transform.SetParent(CargoPos, true);
-		StartCoroutine(Move(cargo));
+		StartCoroutine(Move(cargo, .35f * stackObjects.Count));
 		cargo.transform.localRotation = Quaternion.identity;
 	}
 
-	private IEnumerator Move(GameObject cargo)
+	private IEnumerator Move(GameObject cargo, float pos)
 	{
-		float desiredDuration = .01f;
-		for (float t = 0; t < 1; t += Time.deltaTime / desiredDuration)
+		float elapsedTime = 0, waitTime = 1f;
+		while (elapsedTime < waitTime)
 		{
-			cargo.transform.localPosition = Vector3.LerpUnclamped(cargo.transform.position, new Vector3(0, .35f * stackObjects.Count, 0), t);
-			yield return new WaitForFixedUpdate();
+			cargo.transform.position = Vector3.Lerp(cargo.transform.position, new Vector3(CargoPos.position.x, CargoPos.position.y + pos, CargoPos.position.z), (elapsedTime / waitTime));
+			elapsedTime += Time.deltaTime / 2;
+			yield return null;
 		}
+		cargo.transform.position = new Vector3(CargoPos.position.x, CargoPos.position.y + pos, CargoPos.position.z);
 		yield return null;
 	}
 
 	public GameObject OutItem()
 	{
-	 	return stackObjects.Pop();
+		if (stackObjects.Count > 0) return stackObjects.Pop();
+		else return null;
 	}
 
 	public string GetTag()
